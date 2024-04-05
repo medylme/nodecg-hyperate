@@ -1,0 +1,90 @@
+{
+  "name": "nodecg-hyperate",
+  "version": "1.0.0",
+  "description": "HypeRate Integration for NodeCG",
+  "homepage": "https://github.com/medylme/nodecg-hyperate#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/medylme/nodecg-hyperate.git"
+  },
+  "license": "MIT",
+  "author": "medylme",
+  "scripts": {
+    "autofix": "run-s autofix:*",
+    "autofix:browser": "eslint --fix --ext .ts,.vue src/dashboard && eslint --fix --ext .ts,.vue src/graphics",
+    "autofix:extension": "eslint --fix --ext .ts src/extension && eslint --fix --ext .d.ts src/types",
+    "prebuild": "npm run clean",
+    "build": "run-s clean build:*",
+    "build:browser": "vite build",
+    "build:extension": "tsc -b tsconfig.extension.json",
+    "clean": "trash node_modules/.cache && trash shared/dist && trash dashboard && trash graphics && trash extension",
+    "lint": "run-s lint:*",
+    "lint:browser": "eslint --ext .ts,.vue src/dashboard && eslint --ext .ts,.vue src/graphics",
+    "lint:extension": "eslint --ext .ts src/extension && eslint --ext .d.ts src/types",
+    "schema-types": "nodecg schema-types",
+    "start": "node ../..",
+    "watch": "run-p watch:*",
+    "watch:browser": "vite",
+    "watch:extension": "tsc -b tsconfig.extension.json -w"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.2",
+    "vue3-odometer": "^0.1.3",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@quasar/extras": "^1.15.11",
+    "@quasar/vite-plugin": "^1.3.0",
+    "@types/node": "^18.14.6",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "@vueuse/head": "^1.1.15",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.35.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-vue": "^9.9.0",
+    "nodecg-cli": "^8.6.0",
+    "nodecg-types": "^1.9.0",
+    "nodecg-vue-composable": "^1.1.0",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.38",
+    "quasar": "^2.11.7",
+    "tailwindcss": "^3.4.3",
+    "trash-cli": "^5.0.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4",
+    "vite-plugin-checker": "^0.5.6",
+    "vite-plugin-nodecg": "^2.0.0-rc2",
+    "vue": "^3.2.47",
+    "vue-eslint-parser": "^9.1.0",
+    "vue-tsc": "^1.2.1"
+  },
+  "nodecg": {
+    "compatibleRange": "^2.1.11",
+    "dashboardPanels": [
+      {
+        "name": "hrConfig",
+        "title": "HypeRate Integration Config",
+        "file": "hrConfig.html",
+        "width": 3
+      }
+    ],
+    "graphics": [
+      {
+        "file": "blank-style.html",
+        "width": 400,
+        "height": 200
+      },
+      {
+        "file": "dyl-style.html",
+        "width": 400,
+        "height": 200
+      }
+    ]
+  }
+}
