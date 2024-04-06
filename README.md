@@ -17,6 +17,7 @@ A NodeCG bundle that can interact with the [HypeRate](https://www.hyperate.io/) 
 - Run `npm install` (or use your own package manager) in the bundle directory.
 - Run `npm watch` for development, or `npm build` for production.
 - Start NodeCG with `npm start`, if it isn't already running.
+- Use/build from the example graphics, or access the `hrReplicant` replicant from another bundle.
 
 ## Relevant Commands
 
