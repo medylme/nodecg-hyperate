@@ -1,15 +1,16 @@
 /* eslint-disable max-len */
 // eslint-disable-next-line import/no-extraneous-dependencies
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import WebSocket from 'ws';
 import { get as nodecg } from './util/nodecg';
 import { trackedIds, hrReplicant } from './util/replicants';
 
 const WS_KEY = process.env.HYPERATE_API_KEY;
 if (!WS_KEY) {
-  throw new Error('Missing Hyperate API key! Did you forget to set the HYPERATE_API_KEY environment variable.');
+  throw new Error('Missing Hyperate API key! Did you forget to set the HYPERATE_API_KEY environment variable?');
 }
 
-function joinChannel(ws: WebSocket, id: string): void {
+function joinChannel(ws: WebSocket | ReconnectingWebSocket, id: string): void {
   ws.send(JSON.stringify({
     topic: `hr:${id}`,
     event: 'phx_join',
@@ -18,7 +19,7 @@ function joinChannel(ws: WebSocket, id: string): void {
   }));
 }
 
-function leaveChannel(ws: WebSocket, id: string): void {
+function leaveChannel(ws: WebSocket | ReconnectingWebSocket, id: string): void {
   ws.send(JSON.stringify({
     topic: `hr:${id}`,
     event: 'phx_leave',
@@ -27,7 +28,7 @@ function leaveChannel(ws: WebSocket, id: string): void {
   }));
 }
 
-function keepAlive(ws: WebSocket): void {
+function keepAlive(ws: WebSocket | ReconnectingWebSocket): void {
   ws.send(JSON.stringify({
     topic: 'phoenix',
     event: 'heartbeat',
@@ -37,14 +38,17 @@ function keepAlive(ws: WebSocket): void {
 }
 
 // Connect to HypeRate
-const ws = new WebSocket(`wss://app.hyperate.io/socket/websocket?token=${WS_KEY}`);
+const ws = new ReconnectingWebSocket(`wss://app.hyperate.io/socket/websocket?token=${WS_KEY}`, [], { WebSocket });
+let lastConnectionState = false;
+
 ws.onopen = () => {
-  nodecg().log.info('Connected to HypeRate!');
+  nodecg().log.info('Connected to HypeRate API.');
+  lastConnectionState = true;
 
   // Keep connection alive
   setInterval(() => {
     keepAlive(ws);
-    nodecg().log.debug('Sending keep-alive to Phoenix.');
+    nodecg().log.debug('Sending heartbeat to HypeRate API.');
   }, 10000);
 
   trackedIds.on('change', (newVal, oldVal) => {
@@ -92,4 +96,10 @@ ws.onopen = () => {
       nodecg().log.debug('Received HR data:', hrReplicant.value);
     }
   };
+};
+
+ws.onclose = () => {
+  if (!lastConnectionState) return;
+  nodecg().log.warn('Lost connection to HypeRate API.');
+  lastConnectionState = false;
 };
