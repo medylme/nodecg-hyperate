@@ -80,20 +80,26 @@ ws.onopen = () => {
 
   // Listen for HR updates
   ws.onmessage = (event) => {
-    const data = JSON.parse(event.data.toString());
+    try {
+      const data = JSON.parse(event.data.toString());
 
-    trackedIds.value.forEach((element) => {
-      if (data.event === 'hr_update' && data.topic === `hr:${element}`) {
-        const id = data.topic.split(':')[1];
-        const { hr } = data.payload;
-        hrReplicant.value[id] = { id, hr };
+      trackedIds.value.forEach((element) => {
+        if (data.event === 'hr_update' && data.topic === `hr:${element}`) {
+          const id = data.topic.split(':')[1];
+          const { hr } = data.payload;
 
-        nodecg().sendMessage('hr-update', id);
+          if (Number(hr) === 0) return;
+
+          hrReplicant.value[id] = { id, hr };
+          nodecg().sendMessage('hr-update', id);
+        }
+      });
+
+      if (hrReplicant.value) {
+        nodecg().log.debug('Received HR data:', hrReplicant.value);
       }
-    });
-
-    if (hrReplicant.value) {
-      nodecg().log.debug('Received HR data:', hrReplicant.value);
+    } catch (err) {
+      nodecg().log.error('Error parsing HypeRate data:', err);
     }
   };
 };
